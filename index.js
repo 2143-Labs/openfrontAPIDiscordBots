@@ -155,7 +155,6 @@ async function registerSlashCommands() {
     );
 
   commands.push({
-    name: 'lobbycheck',
     command: command.toJSON(),
     func: async function(interaction) {
       const user = interaction.options.getUser('user') || interaction.user;
@@ -180,9 +179,9 @@ async function registerSlashCommands() {
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  const cmd = commands.find(c => c.name === interaction.commandName);
-  if (cmd?.func) {
-    await cmd.func(interaction);
+  const commandEntry = commands.find(c => c.command.name === interaction.commandName);
+  if (commandEntry) {
+    await commandEntry.func(interaction);
   }
 });
 

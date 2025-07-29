@@ -142,26 +142,34 @@ client.on('messageCreate', async (msg) => {
 });
 
 // === 🧾 Slash command registration ===
+const commands = [];
+
 async function registerSlashCommands() {
-  const commands = [
-    new SlashCommandBuilder()
-      .setName('lobbycheck')
-      .setDescription('Manually check lobby status and compare to last fetch')
-      .addUserOption(option =>
-        option.setName('user')
-          .setDescription('User to ping if unchanged')
-          .setRequired(false)
-      )
-      .toJSON()
-  ];
+  const command = new SlashCommandBuilder()
+    .setName('lobbycheck')
+    .setDescription('Manually check lobby status and compare to last fetch')
+    .addUserOption(option =>
+      option.setName('user')
+        .setDescription('User to ping if unchanged')
+        .setRequired(false)
+    );
+
+  commands.push({
+    name: 'lobbycheck',
+    command: command.toJSON(),
+    func: async function(interaction) {
+      const user = interaction.options.getUser('user') || interaction.user;
+      await interaction.reply({ content: 'Checking lobby status...', flags: 64 });
+      await fetchAndCompareLobbies(user.id, { manual: true, interaction });
+    }
+  });
 
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
-
   try {
     console.log('📡 Registering slash commands...');
     await rest.put(
       Routes.applicationCommands(process.env.CLIENT_ID),
-      { body: commands }
+      { body: commands.map(c => c.command) }
     );
     console.log('✅ Slash commands registered');
   } catch (err) {
@@ -169,16 +177,12 @@ async function registerSlashCommands() {
   }
 }
 
-// === ⚙️ Slash command interaction handler ===
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  if (interaction.commandName === 'lobbycheck') {
-    // Get user option or fallback to command user ID
-    const user = interaction.options.getUser('user') || interaction.user;
-
-    await interaction.reply({ content: 'Checking lobby status...', flags: 64 });
-    await fetchAndCompareLobbies(user.id, {manual: true, interaction});
+  const cmd = commands.find(c => c.name === interaction.commandName);
+  if (cmd?.func) {
+    await cmd.func(interaction);
   }
 });
 

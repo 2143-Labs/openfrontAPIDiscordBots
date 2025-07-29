@@ -1,5 +1,17 @@
 import express from 'express';
-import { Client, GatewayIntentBits } from 'discord.js';
+import {
+  Client,
+  GatewayIntentBits,
+  Collection,
+  Events,
+  Activity,
+  SlashCommandBuilder,
+  Partials,
+  PermissionsBitField,
+  RoleFlagsBitField,
+  RoleManager,
+  ChannelType,
+} from "discord.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,7 +28,15 @@ app.listen(PORT, () => {
 
 // Discord bot setup
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.GuildWebhooks,
+  ],
+  partials: [Partials.Channel, Partials.Message, Partials.User],
 });
 
 client.on('ready', () => {

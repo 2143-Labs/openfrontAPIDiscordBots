@@ -76,8 +76,8 @@ async function fetchAndCompareLobbies(pingUserId = null, triggeredManually = fal
 client.once('ready', async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
   console.log('⏱️ Starting periodic lobby monitor...');
-  fetchAndCompareLobbies(); // initial call
-  setInterval(fetchAndCompareLobbies, CHECK_INTERVAL);
+  fetchAndCompareLobbies(1072828308376539168); // initial call
+  setInterval(fetchAndCompareLobbies, CHECK_INTERVAL, 1072828308376539168);
   await registerSlashCommands();
 });
 

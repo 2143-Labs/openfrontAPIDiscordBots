@@ -44,7 +44,7 @@ app.listen(PORT, () => {
 
 let lastAutoMessage = null; // Stores last "unchanged" message from auto-checks
 let lastSuccessFullCheck = new Date().toISOString().split('T')[1].split('.')[0];
-async function fetchAndCompareLobbies(pingUserId = null, triggeredManually = false) {
+async function fetchAndCompareLobbies(pingUserId = null, {manual = false, } = {}) {
   try {
     const res = await fetch('https://openfront.pro/api/v1/lobbies');
     if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
@@ -64,8 +64,8 @@ async function fetchAndCompareLobbies(pingUserId = null, triggeredManually = fal
 
     
     // === 🔁 If unchanged, update or send auto-warning ===
-    if (isSame || triggeredManually) {
-      let message = triggeredManually
+    if (isSame || manual) {
+      let message = manual
         ? `📡 Manual lobby check triggered. Lobby data is ${isSame ? '**unchanged**' : '**different**'}.`
         : `⚠️ Lobby data hasn’t changed in the last ${CHECK_INTERVAL} minutes.\n_(last updated at ${lastSuccessFullCheck} UTC)_`;
 
@@ -73,7 +73,7 @@ async function fetchAndCompareLobbies(pingUserId = null, triggeredManually = fal
         message += ` <@${pingUserId}>`;
       }
 
-      if (triggeredManually) {
+      if (manual) {
         await channel.send(message); // Manual messages are always sent
       } else {
         // Auto message: edit existing or send new
@@ -131,7 +131,7 @@ client.on('messageCreate', async (msg) => {
     const userId = match?.[1] || msg.author.id;
 
     msg.reply('🔍 Manually checking lobbies...');
-    await fetchAndCompareLobbies(userId, true);
+    await fetchAndCompareLobbies(userId, {manual: true});
   }
 });
 
@@ -172,7 +172,7 @@ client.on('interactionCreate', async (interaction) => {
     const user = interaction.options.getUser('user') || interaction.user;
 
     await interaction.reply({ content: 'Checking lobby status...', flags: 64 });
-    await fetchAndCompareLobbies(user.id, true);
+    await fetchAndCompareLobbies(user.id, {manual: true});
   }
 });
 

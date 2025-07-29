@@ -44,7 +44,7 @@ app.listen(PORT, () => {
 
 let lastAutoMessage = null; // Stores last "unchanged" message from auto-checks
 let lastSuccessFullCheck = new Date().toISOString().split('T')[1].split('.')[0];
-async function fetchAndCompareLobbies(pingUserId = null, {manual = false, } = {}) {
+async function fetchAndCompareLobbies(pingUserId = null, {manual = false} = {}) {
   try {
     const res = await fetch('https://openfront.pro/api/v1/lobbies');
     if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);

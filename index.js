@@ -11,6 +11,8 @@ import {
   RoleFlagsBitField,
   RoleManager,
   ChannelType,
+  REST,
+  Routes
 } from "discord.js";
 
 // Discord bot setup

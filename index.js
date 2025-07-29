@@ -50,9 +50,14 @@ async function fetchAndCompareLobbies(pingUserId = null, triggeredManually = fal
     if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
     const data = await res.json();
 
-    const serialized = JSON.stringify(data);
-    const isSame = lastLobbies && serialized === lastLobbies;
-    lastLobbies = serialized;
+    const filtered = data.map(lobby => ({
+      game_id: lobby.game_id,
+      last_seen_unix_sec: lobby.last_seen_unix_sec
+    }));
+
+    const serialized = JSON.stringify(filtered);
+    const isSame = lastLobbies && serialized === lastLobbies;
+    lastLobbies = serialized;
 
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (!channel?.isTextBased()) return;

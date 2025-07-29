@@ -12,8 +12,7 @@ import {
   RoleManager,
   ChannelType,
   REST,
-  Routes,
-  InteractionResponseFlags
+  Routes
 } from "discord.js";
 
 // Discord bot setup
@@ -138,7 +137,7 @@ client.on('interactionCreate', async (interaction) => {
     // Get user option or fallback to command user ID
     const user = interaction.options.getUser('user') || interaction.user;
 
-    await interaction.reply({ content: 'Checking lobby status...', flags: InteractionResponseFlags.Ephemeral });
+    await interaction.reply({ content: 'Checking lobby status...', flags: 64 });
     await fetchAndCompareLobbies(user.id, true);
   }
 });

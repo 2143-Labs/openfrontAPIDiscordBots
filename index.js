@@ -197,7 +197,8 @@ client.on('messageCreate', async (msg) => {
     },
     reply: (...args) => msg.reply(...args),
     deferReply: async () => {}, // no-op
-    editReply: (...args) => msg.reply(...args),
+    editReply: (...args) => msg.edit(...args),
+    followUp: (content) => msg.reply(content)
   };
 
   try {

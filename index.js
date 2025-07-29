@@ -13,19 +13,6 @@ import {
   ChannelType,
 } from "discord.js";
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Keepalive endpoint for Deno Deploy ping
-app.get('/ping', (req, res) => {
-  res.send('pong');
-});
-
-// Start web server
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
-
 // Discord bot setup
 const client = new Client({
   intents: [
@@ -50,3 +37,15 @@ client.on('messageCreate', (msg) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Keepalive endpoint for Deno Deploy ping
+app.get('/ping', (req, res) => {
+  res.send('Pong: ' + client.ws.ping);
+});
+
+// Start web server
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});

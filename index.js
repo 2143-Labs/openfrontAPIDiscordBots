@@ -31,7 +31,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const CHANNEL_ID = process.env.ALERT_CHANNEL_ID;
 let lastLobbies = null;
-const CHECK_INTERVAL = 1 * 60 * 1000;
+const CHECK_INTERVAL = 1;
 
 // Keepalive endpoint for Deno Deploy ping
 app.get('/ping', (req, res) => {
@@ -58,7 +58,7 @@ async function fetchAndCompareLobbies(pingUserId = null, triggeredManually = fal
       if (channel?.isTextBased()) {
         let message = triggeredManually
           ? `📡 Manual lobby check triggered. Lobby data is ${isSame ? '**unchanged**' : '**different**'}.`
-          : `⚠️ Lobby data hasn’t changed in the last 5 minutes.`;
+          : `⚠️ Lobby data hasn’t changed in the last ${CHECK_INTERVAL} minutes.`;
 
         if (pingUserId) {
           message += ` <@${pingUserId}>`;
@@ -77,7 +77,7 @@ client.once('ready', async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
   console.log('⏱️ Starting periodic lobby monitor...');
   fetchAndCompareLobbies(1072828308376539168); // initial call
-  setInterval(fetchAndCompareLobbies, CHECK_INTERVAL, 1072828308376539168);
+  setInterval(fetchAndCompareLobbies, CHECK_INTERVAL * 60 * 1000, 1072828308376539168);
   await registerSlashCommands();
 });
 

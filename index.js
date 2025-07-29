@@ -121,47 +121,42 @@ client.once('ready', async () => {
   await registerSlashCommands();
 });
 
-// === 💬 Message handler (optional) ===
-client.on('messageCreate', async (msg) => {
-  if (msg.content === '!ping') {
-    msg.reply('Pong: ' + client.ws.ping);
-  }
-
-  if (msg.content.startsWith('!lobbycheck')) {
-    const args = msg.content.trim().split(/\s+/);
-    const userMention = args[1]; // e.g., <@1234567890>
-
-    // Extract user ID from mention, if provided
-    const match = userMention?.match(/^<@!?(\d+)>$/);
-    // Use mentioned user ID or fallback to message author ID
-    const userId = match?.[1] || msg.author.id;
-
-    msg.reply('🔍 Manually checking lobbies...');
-    await fetchAndCompareLobbies(userId, {manual: true, msg});
-  }
-});
-
 // === 🧾 Slash command registration ===
 const commands = [];
 
-async function registerSlashCommands() {
-  const command = new SlashCommandBuilder()
-    .setName('lobbycheck')
-    .setDescription('Manually check lobby status and compare to last fetch')
-    .addUserOption(option =>
-      option.setName('user')
-        .setDescription('User to ping if unchanged')
-        .setRequired(false)
-    );
-
+async function addCommand(commandBuilder, func) {
   commands.push({
-    command: command.toJSON(),
-    func: async function(interaction) {
+    command: commandBuilder.toJSON(),
+    func,
+  });
+}
+
+async function registerSlashCommands() {
+  await addCommand(
+    new SlashCommandBuilder()
+      .setName('lobbycheck')
+      .setDescription('Manually check lobby status and compare to last fetch')
+      .addUserOption(option =>
+        option.setName('user')
+          .setDescription('User to ping if unchanged')
+          .setRequired(false)
+      ),
+    async (interaction) => {
       const user = interaction.options.getUser('user') || interaction.user;
-      await interaction.reply({ content: 'Checking lobby status...', flags: 64 });
+      await interaction.deferReply(); // No flags
+      await interaction.editReply('🔍 Checking lobby status...');
       await fetchAndCompareLobbies(user.id, { manual: true, interaction });
     }
-  });
+  );
+
+  await addCommand(
+    new SlashCommandBuilder()
+      .setName('ping')
+      .setDescription('Gets the ping'),
+    async (interaction) => {
+      await interaction.reply('Pong: ' + client.ws.ping);
+    }
+  );
 
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
   try {
@@ -175,14 +170,41 @@ async function registerSlashCommands() {
     console.error('❌ Error registering commands:', err);
   }
 }
+// === 💬 Message handler (optional) ===
+client.on('messageCreate', async (msg) => {
+  if (msg.author.bot || !msg.content.startsWith('!')) return;
 
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
+  const [rawCommand, ...args] = msg.content.slice(1).split(/\s+/);
+  const commandEntry = commands.find(c => c.command.name === rawCommand);
 
-  const commandEntry = commands.find(c => c.command.name === interaction.commandName);
-  if (commandEntry) {
-    await commandEntry.func(interaction);
+  if (!commandEntry) {
+    msg.reply(`❌ Unknown command: \`${rawCommand}\``);
+    return;
+  }
+
+  // Fake interaction object for message-based command
+  const fakeInteraction = {
+    user: msg.author,
+    options: {
+      getUser(name) {
+        if (name === 'user') {
+          const mention = args[0];
+          const match = mention?.match(/^<@!?(\d+)>$/);
+          return match ? { id: match[1] } : msg.author;
+        }
+        return null;
+      },
+    },
+    reply: (...args) => msg.reply(...args),
+    deferReply: async () => {}, // no-op
+    editReply: (...args) => msg.reply(...args),
+  };
+
+  try {
+    await commandEntry.func(fakeInteraction);
+  } catch (err) {
+    console.error(`❌ Error running !${rawCommand}:`, err);
+    msg.reply('⚠️ Error running command.');
   }
 });
-
 client.login(process.env.DISCORD_TOKEN);

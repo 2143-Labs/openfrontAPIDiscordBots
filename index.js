@@ -42,7 +42,8 @@ app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
 
-// === ⏱️ Periodic lobby fetch function ===
+let lastAutoMessage = null; // Stores last "unchanged" message from auto-checks
+
 async function fetchAndCompareLobbies(pingUserId = null, triggeredManually = false) {
   try {
     const res = await fetch('https://openfront.pro/api/v1/lobbies');
@@ -53,22 +54,50 @@ async function fetchAndCompareLobbies(pingUserId = null, triggeredManually = fal
     const isSame = lastLobbies && serialized === lastLobbies;
     lastLobbies = serialized;
 
-    if (isSame || triggeredManually) {
-      const channel = await client.channels.fetch(CHANNEL_ID);
-      if (channel?.isTextBased()) {
-        let message = triggeredManually
-          ? `📡 Manual lobby check triggered. Lobby data is ${isSame ? '**unchanged**' : '**different**'}.`
-          : `⚠️ Lobby data hasn’t changed in the last ${CHECK_INTERVAL} minutes.`;
+    const channel = await client.channels.fetch(CHANNEL_ID);
+    if (!channel?.isTextBased()) return;
 
-        if (pingUserId) {
-          message += ` <@${pingUserId}>`;
+    const now = new Date().toISOString().split('T')[1].split('.')[0]; // HH:MM:SS UTC
+
+    // === 🔁 If unchanged, update or send auto-warning ===
+    if (isSame || triggeredManually) {
+      let message = triggeredManually
+        ? `📡 Manual lobby check triggered. Lobby data is ${isSame ? '**unchanged**' : '**different**'}.`
+        : `⚠️ Lobby data hasn’t changed in the last ${CHECK_INTERVAL} minutes.\n_(last updated at ${now} UTC)_`;
+
+      if (pingUserId) {
+        message += ` <@${pingUserId}>`;
+      }
+
+      if (triggeredManually) {
+        await channel.send(message); // Manual messages are always sent
+      } else {
+        // Auto message: edit existing or send new
+        if (lastAutoMessage) {
+          try {
+            await lastAutoMessage.edit(message);
+          } catch (err) {
+            console.warn("⚠️ Couldn't edit last auto message. Sending new one.");
+            lastAutoMessage = await channel.send(message);
+          }
+        } else {
+          lastAutoMessage = await channel.send(message);
         }
-        await channel.send(message);
+      }
+    } else {
+      // ✅ Data changed — delete old unchanged message if it exists
+      if (lastAutoMessage) {
+        try {
+          await lastAutoMessage.delete();
+        } catch (err) {
+          console.warn("⚠️ Failed to delete last auto message:", err.message);
+        }
+        lastAutoMessage = null;
       }
     }
 
   } catch (err) {
-    console.error('Error during lobby fetch:', err);
+    console.error('❌ Error during lobby fetch:', err);
   }
 }
 

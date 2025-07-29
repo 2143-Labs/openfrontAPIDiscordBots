@@ -31,7 +31,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const CHANNEL_ID = process.env.ALERT_CHANNEL_ID;
 let lastLobbies = null;
-const CHECK_INTERVAL = 5 * 60 * 1000;
+const CHECK_INTERVAL = 1 * 60 * 1000;
 
 // Keepalive endpoint for Deno Deploy ping
 app.get('/ping', (req, res) => {
@@ -63,7 +63,6 @@ async function fetchAndCompareLobbies(pingUserId = null, triggeredManually = fal
         if (pingUserId) {
           message += ` <@${pingUserId}>`;
         }
-
         await channel.send(message);
       }
     }

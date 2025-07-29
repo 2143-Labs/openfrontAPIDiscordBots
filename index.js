@@ -76,7 +76,9 @@ async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = 
       if (manual) {
         if (msg) {
           msg.reply(message);
-        } else await channel.send(message); // Manual messages are always sent
+        } else  {
+          await channel.send(message); // Manual messages are always sent
+        }
       } else {
         // Auto message: edit existing or send new
         if (lastAutoMessage) {
@@ -133,7 +135,7 @@ client.on('messageCreate', async (msg) => {
     const userId = match?.[1] || msg.author.id;
 
     msg.reply('🔍 Manually checking lobbies...');
-    await fetchAndCompareLobbies(userId, {manual: true});
+    await fetchAndCompareLobbies(userId, {manual: true, msg});
   }
 });
 
@@ -174,7 +176,7 @@ client.on('interactionCreate', async (interaction) => {
     const user = interaction.options.getUser('user') || interaction.user;
 
     await interaction.reply({ content: 'Checking lobby status...', flags: 64 });
-    await fetchAndCompareLobbies(user.id, {manual: true});
+    await fetchAndCompareLobbies(user.id, {manual: true, msg: interaction});
   }
 });
 

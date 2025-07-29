@@ -197,7 +197,13 @@ client.on('messageCreate', async (msg) => {
     },
     reply: (...args) => msg.reply(...args),
     deferReply: async () => {}, // no-op
-    editReply: (...args) => msg.edit(...args),
+    editReply: async (content) => {
+      if (botReplyMsg) {
+        await botReplyMsg.edit(content);
+      } else {
+        botReplyMsg = await msg.reply(content);
+      }
+    }
     followUp: (content) => msg.reply(content)
   };
 

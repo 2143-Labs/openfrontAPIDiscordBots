@@ -49,3 +49,35 @@ app.get('/ping', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+
+let lastLobbies = null;
+const CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
+const CHANNEL_ID = process.env.ALERT_CHANNEL_ID; // Set this in Render's env vars
+
+async function fetchLobbies() {
+  try {
+    const res = await fetch('https://openfront.pro/api/v1/lobbies');
+    if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+    const data = await res.json();
+
+    const serialized = JSON.stringify(data);
+    if (lastLobbies !== null && serialized === lastLobbies) {
+      // Unchanged, send alert
+      const channel = await client.channels.fetch(CHANNEL_ID);
+      if (channel && channel.isTextBased()) {
+        channel.send('⚠️ Lobby data hasn’t changed in the last 5 minutes.');
+      }
+    }
+
+    lastLobbies = serialized;
+  } catch (err) {
+    console.error('Error fetching lobbies:', err);
+  }
+}
+
+// Wait for bot to be ready before starting polling
+client.once('ready', () => {
+  console.log('⏱️ Starting lobby monitor...');
+  fetchLobbies(); // initial
+  setInterval(fetchLobbies, CHECK_INTERVAL);
+});

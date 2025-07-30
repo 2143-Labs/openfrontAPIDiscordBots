@@ -285,7 +285,7 @@ client.on('messageCreate', async (msg) => {
 
   // Build a map of argument names to provided values (based on the command's expected options)
   const argMap = new Map();
-  const options = commandEntry.command.options ?? [];
+  const options = commandEntry.builder.options ?? [];
 
   for (let i = 0; i < options.length; i++) {
     const opt = options[i];

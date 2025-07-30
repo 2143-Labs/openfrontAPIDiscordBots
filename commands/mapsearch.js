@@ -5,7 +5,7 @@ export default async function mapsearch(msg, args, client) {
   }
 
   const mapName = args.join(' ');
-  await msg.reply(`📡 Searching OpenFront.io for map: \`${mapName}\`...`);
+  let resultMsg = await msg.reply(`📡 Searching OpenFront.io for map: \`${mapName}\`...`);
 
   const ws = new WebSocket("wss://tktk123456-openfrontio-51.deno.dev/ws");
 
@@ -27,7 +27,7 @@ export default async function mapsearch(msg, args, client) {
       if (now - lastEditTime >= 5000) {
         lastEditTime = now;
         await msg.channel.sendTyping();
-        const sentMsg = await msg.channel.send(content);
+        const sentMsg = await resultMsg.edit(content);
         pendingContent = null;
         if (editTimeout) clearTimeout(editTimeout);
       } else {
@@ -37,7 +37,7 @@ export default async function mapsearch(msg, args, client) {
             try {
               if (pendingContent) {
                 await msg.channel.sendTyping();
-                await msg.channel.send(pendingContent);
+                await resultMsg.edit(pendingContent)
                 lastEditTime = Date.now();
                 pendingContent = null;
               }
@@ -55,22 +55,22 @@ export default async function mapsearch(msg, args, client) {
 
       if (data.matches?.length) {
         const trimmed = data.matches.slice(0, 20); // Limit to first 20 results
-        await msg.channel.send(
+        await resultMsg.edit(
           `✅ Found ${data.matches.length} games on **${mapName}**.\nFirst few:\n\`\`\`json\n${JSON.stringify(trimmed, null, 2)}\n\`\`\``
         );
       } else {
-        await msg.channel.send(`❌ No matches found for map: ${mapName}`);
+        await resultMsg.edit(`❌ No matches found for map: ${mapName}`);
       }
       ws.close();
     }
 
     if (data.error) {
-      await msg.channel.send("❌ Error: " + data.error);
+      await resultMsg.edit("❌ Error: " + data.error);
       ws.close();
     }
   };
 
   ws.onerror = async () => {
-    await msg.channel.send("❌ WebSocket error while contacting the backend.");
+    await resultMsg.edit("❌ WebSocket error while contacting the backend.");
   };
 };

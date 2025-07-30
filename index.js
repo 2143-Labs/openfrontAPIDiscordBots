@@ -158,7 +158,56 @@ async function registerSlashCommands() {
       await interaction.reply('Pong: ' + client.ws.ping);
     }
   );
+  await addCommand(
+  new SlashCommandBuilder()
+    .setName('mapsearch')
+    .setDescription('Search OpenFront.io for all games played on a specific map')
+    .addStringOption(option =>
+      option.setName('map')
+        .setDescription('Map name (case-sensitive)')
+        .setRequired(true)
+    ),
+  async (interaction) => {
+    const mapName = interaction.options.getString('map');
+    await interaction.deferReply();
 
+    const ws = new WebSocket("wss://tktk123456-openfrontio-51.deno.dev/ws");
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: "getMap", mapName }));
+    };
+
+    ws.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "progress") {
+        const content = `🔄 Searching for map \`${mapName}\`: ${data.progress}% (${data.currentCount}/${data.total} checked, ${data.matchesCount} matches)`;
+        await interaction.editReply(content);
+      }
+
+      if (data.done) {
+        if (data.matches?.length) {
+          const trimmed = data.matches.slice(0, 20); // limit output for Discord
+          await interaction.editReply(
+            `✅ Found ${data.matches.length} games on **${mapName}**.\nFirst few:\n\`\`\`json\n${JSON.stringify(trimmed, null, 2)}\n\`\`\``
+          );
+        } else {
+          await interaction.editReply(`❌ No matches found for map: ${mapName}`);
+        }
+        ws.close();
+      }
+
+      if (data.error) {
+        await interaction.editReply("❌ Error: " + data.error);
+        ws.close();
+      }
+    };
+
+    ws.onerror = async () => {
+      await interaction.editReply("❌ WebSocket error while contacting the backend.");
+    };
+  }
+);
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
   try {
     console.log('📡 Registering slash commands...');

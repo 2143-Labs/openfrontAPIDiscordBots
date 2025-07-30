@@ -271,6 +271,7 @@ client.on("interactionCreate", async (interaction) => {
 });
 // === 💬 Message handler (optional) ===
 client.on('messageCreate', async (msg) => {
+  console.log(msg)
   if (msg.author.bot || !msg.content.startsWith('!')) return;
 
   const [rawCommand, ...args] = msg.content.slice(1).trim().split(/\s+/);

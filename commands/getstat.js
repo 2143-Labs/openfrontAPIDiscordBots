@@ -1,5 +1,6 @@
 import { Buffer } from "node:buffer";
 import { AttachmentBuilder } from "discord.js";
+import { createPNG } from "../tiny-png.js";
 
 export default async function getstat(msg, args, client) {
   if (args.length < 2) {
@@ -76,12 +77,13 @@ export default async function getstat(msg, args, client) {
 
         if (data.display === "heatmap" && data.heatmap) {
           try {
-            const base64 = data.heatmap.base64?.split(",")?.pop(); // handle if it's a data URL
-            const imgBuffer = Buffer.from(base64, "base64");
-            const attachment = new AttachmentBuilder(imgBuffer, { name: `heatmap-${mapName}.png` });
-
-            await resultMsg.edit(baseText);
-            await msg.channel.send({ files: [attachment] });
+            const heatmap = data.heatmap;
+            let name = "heatmap"
+            if (heatmap.raw && heatmap.width && heatmap.height) {
+              const buffer = createPNG(Uint8ClampedArray.from(heatmap.raw), heatmap.width, heatmap.height);
+              const attachment = new AttachmentBuilder(buffer, { name: `${name}-heatmap.png` });
+              await msg.channel.send({ content: `🗺️ Heatmap for \`${name}\`:`, files: [attachment] });
+  };
           } catch (err) {
             await resultMsg.edit(baseText + `\n⚠️ Failed to render heatmap image: ${err.message}`);
           }

@@ -1,3 +1,5 @@
+const CHANNEL_ID = process.env.ALERT_CHANNEL_ID;
+let lastLobbies = null;
 let lastAutoMessage = null; // Stores last "unchanged" message from auto-checks
 let lastSuccessFullCheck = new Date()
 export async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = null, client = null} = {}) {

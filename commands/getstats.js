@@ -1,4 +1,4 @@
-export default function getstats(msg, args, client) {
+export default async function getstats(msg, args, client) {
   function checkArgs(argIndexes, startsWith) {
     for (const i of argIndexes) {
       const arg = args[i] ?? null;

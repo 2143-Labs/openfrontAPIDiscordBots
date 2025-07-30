@@ -191,7 +191,7 @@ client.on('messageCreate', async (msg) => {
         if (name === 'user') {
           const mention = args[0];
           const match = mention?.match(/^<@!?(\d+)>$/);
-          return match ? { id: match[1] } : msg.author;
+          return match ? { id: match[1] } : null;
         }
         return null;
       },

@@ -68,7 +68,7 @@ async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = 
       const notChangeSinceTimeMsg = `${Math.floor((now - lastSuccessFullCheck) / 60000)} minutes, ${Math.floor(((now - lastSuccessFullCheck) % 60000) / 1000)} seconds and ${(now - lastSuccessFullCheck) % 1000} ms`;
       let message = manual
         ? `📡 Manual lobby check triggered. Lobby data is ${isSame ? '**unchanged**' : '**different**'}.`
-        : `⚠️ Lobby data hasn’t changed in the last ${notChangeSinceTimeMsg}.\n_(last updated at ${lastSuccessFullCheck.toISOString().split('T')[1].split('.')[0];} UTC)_`;
+        : `⚠️ Lobby data hasn’t changed in the last ${notChangeSinceTimeMsg}.\n_(last updated at ${lastSuccessFullCheck.toISOString().split('T')[1].split('.')[0]} UTC)_`;
 
       if (pingUserId) {
         message += ` <@${pingUserId}>`;

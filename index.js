@@ -1,4 +1,5 @@
 import express from 'express';
+import { loadCommandsFrom, getCommand } from './commandLoader.js';
 import {
   Client,
   GatewayIntentBits,
@@ -120,224 +121,23 @@ client.once('ready', async () => {
   await registerSlashCommands();
 });
 
-// === 🧾 Slash command registration ===
-const commands = [];
-
-async function addCommand(builder, func) {
-  commands.push({
-    name: builder.name,
-    builder,
-    json: builder.toJSON(),
-    func,
-  });
-}
-
-async function registerSlashCommands() {
-  await addCommand(
-    new SlashCommandBuilder()
-      .setName('lobbycheck')
-      .setDescription('Manually check lobby status and compare to last fetch')
-      .addUserOption(option =>
-        option.setName('user')
-          .setDescription('User to ping if unchanged')
-          .setRequired(false)
-      ),
-    async (interaction) => {
-      const user = interaction.options.getUser('user') || interaction.user;
-      await interaction.deferReply(); // No flags
-      await interaction.editReply('🔍 Checking lobby status...');
-      await fetchAndCompareLobbies(user.id, { manual: true, interaction });
-    }
-  );
-
-  await addCommand(
-    new SlashCommandBuilder()
-      .setName('ping')
-      .setDescription('Gets the ping'),
-    async (interaction) => {
-      await interaction.reply('Pong: ' + client.ws.ping);
-    }
-  );
-  await addCommand(
-  new SlashCommandBuilder()
-    .setName('mapsearch')
-    .setDescription('Search OpenFront.io for all games played on a specific map')
-    .addStringOption(option =>
-      option.setName('map')
-        .setDescription('Map name (case-sensitive)')
-        .setRequired(true)
-    ),
-  async (interaction) => {
-    const mapName = interaction.options.getString('map');
-    await interaction.deferReply();
-    await interaction.editReply("📡 Connecting to server...");
-
-    const ws = new WebSocket("wss://tktk123456-openfrontio-51.deno.dev/ws");
-
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ type: "getMap", mapName }));
-    };
-
-    let lastEditTime = 0;
-    let pendingContent = null;
-    let editTimeout = null;
-
-ws.onmessage = async (event) => {
-  const data = JSON.parse(event.data);
-  const now = Date.now();
-
-  if (data.type === "progress") {
-    const content = `🔄 Searching for map \`${mapName}\`: ${data.progress}% (${data.currentCount}/${data.total} checked, ${data.matchesCount} matches)`;
-
-    if (now - lastEditTime >= 5000) {
-      // Send update immediately if cooldown passed
-      lastEditTime = now;
-      await interaction.editReply(content);
-    } else {
-      // Otherwise, store and schedule
-      pendingContent = content;
-      if (!editTimeout) {
-        editTimeout = setTimeout(async () => {
-          try {
-            if (pendingContent) {
-              await interaction.editReply(pendingContent);
-              lastEditTime = Date.now();
-              pendingContent = null;
-            }
-          } catch (err) {
-            console.warn("⚠️ Delayed edit failed:", err.message);
-          }
-          editTimeout = null;
-        }, 5000 - (now - lastEditTime));
-      }
-    }
-  }
-
-  if (data.done) {
-    if (editTimeout) clearTimeout(editTimeout); // Send final reply right away
-
-    if (data.matches?.length) {
-      const trimmed = data.matches.slice(0, 20); // Discord display cap
-      await interaction.editReply(
-        `✅ Found ${data.matches.length} games on **${mapName}**.\nFirst few:\n\`\`\`json\n${JSON.stringify(trimmed, null, 2)}\n\`\`\``
-      );
-    } else {
-      await interaction.editReply(`❌ No matches found for map: ${mapName}`);
-    }
-    ws.close();
-  }
-
-  if (data.error) {
-    await interaction.editReply("❌ Error: " + data.error);
-    ws.close();
-  }
-};
-
-    ws.onerror = async () => {
-      await interaction.editReply("❌ WebSocket error while contacting the backend.");
-    };
-  }
-);
-  const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
-  try {
-    console.log('📡 Registering slash commands...');
-    await rest.put(
-      Routes.applicationCommands(process.env.CLIENT_ID),
-      { body: commands.map(c => c.json) }
-    );
-    console.log('✅ Slash commands registered');
-  } catch (err) {
-    console.error('❌ Error registering commands:', err);
-  }
-}
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-
-  const command = commands.find(c => c.name === interaction.commandName);
-  if (!command) {
-    return interaction.reply({ content: 'Unknown command.', ephemeral: true });
-  }
-
-  try {
-    await command.func(interaction);
-  } catch (err) {
-    console.error(`❌ Error running /${interaction.commandName}:`, err);
-    if (interaction.deferred || interaction.replied) {
-      await interaction.followUp({ content: '⚠️ Error executing command.', ephemeral: true });
-    } else {
-      await interaction.reply({ content: '⚠️ Error executing command.', ephemeral: true });
-    }
-  }
-});
-// === 💬 Message handler (optional) ===
+// === 🧾 Command registration ===
 client.on('messageCreate', async (msg) => {
   if (msg.author.bot || !msg.content.startsWith('!')) return;
 
-  const [rawCommand, ...args] = msg.content.slice(1).trim().split(/\s+/);
-  const commandEntry = commands.find(c => c.name === rawCommand);
+  const args = msg.content.slice(1).trim().split(/\s+/);
+  const commandName = args.shift().toLowerCase();
 
-  if (!commandEntry) {
-    msg.reply(`❌ Unknown command: \`${rawCommand}\``);
+  const command = getCommand(commandName);
+  if (!command) {
+    msg.reply(`❌ Unknown command: \`${commandName}\``);
     return;
   }
 
-  // Build a map of argument names to provided values (based on the command's expected options)
-  const argMap = new Map();
-  const options = commandEntry.builder.options ?? [];
-
-  for (let i = 0; i < options.length; i++) {
-    const opt = options[i];
-    if (opt.name && args[i] !== undefined) {
-      argMap.set(opt.name, args[i]);
-    }
-  }
-
-  // Fake interaction object that mimics the Slash Command interaction API
-  const fakeInteraction = {
-    user: msg.author,
-    options: {
-      getString(name) {
-        return argMap.get(name) ?? null;
-      },
-      getUser(name) {
-        const mention = argMap.get(name);
-        const match = mention?.match(/^<@!?(\d+)>$/);
-        return match ? { id: match[1] } : null;
-      },
-      getBoolean(name) {
-        const val = argMap.get(name)?.toLowerCase();
-        if (val === "true") return true;
-        if (val === "false") return false;
-        return null;
-      },
-      getInteger(name) {
-        const val = parseInt(argMap.get(name), 10);
-        return isNaN(val) ? null : val;
-      },
-      getNumber(name) {
-        const val = parseFloat(argMap.get(name));
-        return isNaN(val) ? null : val;
-      }
-    },
-    botReplyMsg: null,
-    reply: async function (content) {
-      this.botReplyMsg = await msg.reply(content);
-    },
-    deferReply: async () => {},
-    editReply: async function (content) {
-      if (this.botReplyMsg) {
-        await this.botReplyMsg.edit(content);
-      } else {
-        this.botReplyMsg = await msg.reply(content);
-      }
-    },
-    followUp: (content) => msg.reply(content)
-  };
-
   try {
-    await commandEntry.func(fakeInteraction);
+    await command(msg, args, client);
   } catch (err) {
-    console.error(`❌ Error running !${rawCommand}:`, err);
+    console.error(`❌ Error running command ${commandName}:`, err);
     msg.reply('⚠️ Error running command.');
   }
 });

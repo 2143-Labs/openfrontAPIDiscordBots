@@ -43,7 +43,7 @@ app.listen(PORT, () => {
 });
 
 let lastAutoMessage = null; // Stores last "unchanged" message from auto-checks
-let lastSuccessFullCheck = new Date().toISOString().split('T')[1].split('.')[0];
+let lastSuccessFullCheck = new Date()
 async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = null, interaction = null} = {}) {
   try {
     const res = await fetch('https://openfront.pro/api/v1/lobbies');
@@ -61,13 +61,14 @@ async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = 
 
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (!channel?.isTextBased()) return;
-
+    const now = = new Date()
     
     // === 🔁 If unchanged, update or send auto-warning ===
     if (isSame || manual) {
+      const notChangeSinceTimeMsg = `${Math.floor((now - lastSuccessFullCheck) / 60000)} minutes, ${Math.floor(((now - lastSuccessFullCheck) % 60000) / 1000)} seconds and ${(now - lastSuccessFullCheck) % 1000} ms`;
       let message = manual
         ? `📡 Manual lobby check triggered. Lobby data is ${isSame ? '**unchanged**' : '**different**'}.`
-        : `⚠️ Lobby data hasn’t changed in the last ${CHECK_INTERVAL} minutes.\n_(last updated at ${lastSuccessFullCheck} UTC)_`;
+        : `⚠️ Lobby data hasn’t changed in the last ${notChangeSinceTimeMsg}.\n_(last updated at ${lastSuccessFullCheck.toISOString().split('T')[1].split('.')[0];} UTC)_`;
 
       if (pingUserId) {
         message += ` <@${pingUserId}>`;
@@ -96,7 +97,7 @@ async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = 
       }
     } else {
       // ✅ Data changed — delete old unchanged message if it exists
-      lastSuccessFullCheck = new Date().toISOString().split('T')[1].split('.')[0];
+      lastSuccessFullCheck = new Date();
       if (lastAutoMessage) {
         try {
           await lastAutoMessage.delete();

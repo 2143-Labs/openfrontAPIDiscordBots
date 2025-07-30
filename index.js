@@ -44,7 +44,7 @@ app.listen(PORT, () => {
 
 let lastAutoMessage = null; // Stores last "unchanged" message from auto-checks
 let lastSuccessFullCheck = new Date()
-async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = null, interaction = null} = {}) {
+async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = null} = {}) {
   try {
     const res = await fetch('https://openfront.pro/api/v1/lobbies');
     if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
@@ -77,8 +77,6 @@ async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = 
       if (manual) {
         if (msg) {
           msg.reply(message);
-        } else if (interaction) {
-          interaction.followUp(message)
         } else {
           await channel.send(message); // Manual messages are always sent
         }

@@ -1,4 +1,5 @@
 export default async function mapsearch(msg, args, client) {
+  console.log(msg, args)
   if (args.length === 0) {
     await msg.reply('❌ Please provide a map name. Usage: `!mapsearch <map name>`');
     return;

@@ -170,6 +170,7 @@ async function registerSlashCommands() {
   async (interaction) => {
     const mapName = interaction.options.getString('map');
     await interaction.deferReply();
+    await interaction.editReply("📡 Connecting to server...");
 
     const ws = new WebSocket("wss://tktk123456-openfrontio-51.deno.dev/ws");
 

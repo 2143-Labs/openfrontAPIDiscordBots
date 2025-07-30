@@ -244,7 +244,7 @@ ws.onmessage = async (event) => {
   try {
     console.log('📡 Registering slash commands...');
     await rest.put(
-      Routes.applicationGuildCommands(process.env.GUILD_ID, process.env.CLIENT_ID),
+      Routes.applicationCommands(process.env.CLIENT_ID),
       { body: commands.map(c => c.json) }
     );
     console.log('✅ Slash commands registered');

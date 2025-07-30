@@ -61,7 +61,7 @@ async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = 
 
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (!channel?.isTextBased()) return;
-    const now = = new Date()
+    const now = new Date()
     
     // === 🔁 If unchanged, update or send auto-warning ===
     if (isSame || manual) {

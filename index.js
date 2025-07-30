@@ -117,8 +117,8 @@ async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = 
 client.once('ready', async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
   console.log('⏱️ Starting periodic lobby monitor...');
-  fetchAndCompareLobbies("262351348534738945");
-  setInterval(fetchAndCompareLobbies, CHECK_INTERVAL * 60 * 1000, "262351348534738945");
+  fetchAndCompareLobbies("1072828308376539168");
+  setInterval(fetchAndCompareLobbies, CHECK_INTERVAL * 60 * 1000, "1072828308376539168);
   await registerSlashCommands();
 });
 

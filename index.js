@@ -179,6 +179,7 @@ async function registerSlashCommands() {
     };
 
     ws.onmessage = async (event) => {
+      console.log(process.memoryUsage());
       const data = JSON.parse(event.data);
 
       if (data.type === "progress") {

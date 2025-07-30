@@ -178,32 +178,60 @@ async function registerSlashCommands() {
       ws.send(JSON.stringify({ type: "getMap", mapName }));
     };
 
-    ws.onmessage = async (event) => {
-      console.log(process.memoryUsage());
-      const data = JSON.parse(event.data);
+    let lastEditTime = 0;
+    let pendingContent = null;
+    let editTimeout = null;
 
-      if (data.type === "progress") {
-        const content = `🔄 Searching for map \`${mapName}\`: ${data.progress}% (${data.currentCount}/${data.total} checked, ${data.matchesCount} matches)`;
-        await interaction.editReply(content);
-      }
+ws.onmessage = async (event) => {
+  const data = JSON.parse(event.data);
+  const now = Date.now();
 
-      if (data.done) {
-        if (data.matches?.length) {
-          const trimmed = data.matches.slice(0, 20); // limit output for Discord
-          await interaction.editReply(
-            `✅ Found ${data.matches.length} games on **${mapName}**.\nFirst few:\n\`\`\`json\n${JSON.stringify(trimmed, null, 2)}\n\`\`\``
-          );
-        } else {
-          await interaction.editReply(`❌ No matches found for map: ${mapName}`);
-        }
-        ws.close();
-      }
+  if (data.type === "progress") {
+    const content = `🔄 Searching for map \`${mapName}\`: ${data.progress}% (${data.currentCount}/${data.total} checked, ${data.matchesCount} matches)`;
 
-      if (data.error) {
-        await interaction.editReply("❌ Error: " + data.error);
-        ws.close();
+    if (now - lastEditTime >= 5000) {
+      // Send update immediately if cooldown passed
+      lastEditTime = now;
+      await interaction.editReply(content);
+    } else {
+      // Otherwise, store and schedule
+      pendingContent = content;
+      if (!editTimeout) {
+        editTimeout = setTimeout(async () => {
+          try {
+            if (pendingContent) {
+              await interaction.editReply(pendingContent);
+              lastEditTime = Date.now();
+              pendingContent = null;
+            }
+          } catch (err) {
+            console.warn("⚠️ Delayed edit failed:", err.message);
+          }
+          editTimeout = null;
+        }, 5000 - (now - lastEditTime));
       }
-    };
+    }
+  }
+
+  if (data.done) {
+    if (editTimeout) clearTimeout(editTimeout); // Send final reply right away
+
+    if (data.matches?.length) {
+      const trimmed = data.matches.slice(0, 20); // Discord display cap
+      await interaction.editReply(
+        `✅ Found ${data.matches.length} games on **${mapName}**.\nFirst few:\n\`\`\`json\n${JSON.stringify(trimmed, null, 2)}\n\`\`\``
+      );
+    } else {
+      await interaction.editReply(`❌ No matches found for map: ${mapName}`);
+    }
+    ws.close();
+  }
+
+  if (data.error) {
+    await interaction.editReply("❌ Error: " + data.error);
+    ws.close();
+  }
+};
 
     ws.onerror = async () => {
       await interaction.editReply("❌ WebSocket error while contacting the backend.");

@@ -125,9 +125,11 @@ client.once('ready', async () => {
 // === 🧾 Slash command registration ===
 const commands = [];
 
-async function addCommand(commandBuilder, func) {
+async function addCommand(builder, func) {
   commands.push({
-    command: commandBuilder.toJSON(),
+    name: builder.name,
+    builder,
+    json: builder.toJSON(),
     func,
   });
 }
@@ -242,8 +244,8 @@ ws.onmessage = async (event) => {
   try {
     console.log('📡 Registering slash commands...');
     await rest.put(
-      Routes.applicationCommands(process.env.CLIENT_ID),
-      { body: commands.map(c => c.command) }
+      Routes.applicationGuildCommands(process.env.GUILD_ID, process.env.CLIENT_ID),
+      { body: commands.map(c => c.json) }
     );
     console.log('✅ Slash commands registered');
   } catch (err) {
@@ -253,7 +255,7 @@ ws.onmessage = async (event) => {
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  const command = commands.find(c => c.command.name === interaction.commandName);
+  const command = commands.find(c => c.name === interaction.commandName);
   if (!command) {
     return interaction.reply({ content: 'Unknown command.', ephemeral: true });
   }
@@ -274,7 +276,7 @@ client.on('messageCreate', async (msg) => {
   if (msg.author.bot || !msg.content.startsWith('!')) return;
 
   const [rawCommand, ...args] = msg.content.slice(1).trim().split(/\s+/);
-  const commandEntry = commands.find(c => c.command.name === rawCommand);
+  const commandEntry = commands.find(c => c.name === rawCommand);
 
   if (!commandEntry) {
     msg.reply(`❌ Unknown command: \`${rawCommand}\``);

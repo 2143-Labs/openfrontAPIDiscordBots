@@ -244,7 +244,7 @@ client.on("interactionCreate", async (interaction) => {
 client.on('messageCreate', async (msg) => {
   if (msg.author.bot || !msg.content.startsWith('!')) return;
 
-  const [rawCommand, ...args] = msg.content.slice(1).split(/\s+/);
+  const [rawCommand, ...args] = msg.content.slice(1).trim().split(/\s+/);
   const commandEntry = commands.find(c => c.command.name === rawCommand);
 
   if (!commandEntry) {
@@ -252,24 +252,49 @@ client.on('messageCreate', async (msg) => {
     return;
   }
 
-  // Fake interaction object for message-based command
+  // Build a map of argument names to provided values (based on the command's expected options)
+  const argMap = new Map();
+  const options = commandEntry.command.options ?? [];
+
+  for (let i = 0; i < options.length; i++) {
+    const opt = options[i];
+    if (opt.name && args[i] !== undefined) {
+      argMap.set(opt.name, args[i]);
+    }
+  }
+
+  // Fake interaction object that mimics the Slash Command interaction API
   const fakeInteraction = {
     user: msg.author,
     options: {
+      getString(name) {
+        return argMap.get(name) ?? null;
+      },
       getUser(name) {
-        if (name === 'user') {
-          const mention = args[0];
-          const match = mention?.match(/^<@!?(\d+)>$/);
-          return match ? { id: match[1] } : null;
-        }
+        const mention = argMap.get(name);
+        const match = mention?.match(/^<@!?(\d+)>$/);
+        return match ? { id: match[1] } : null;
+      },
+      getBoolean(name) {
+        const val = argMap.get(name)?.toLowerCase();
+        if (val === "true") return true;
+        if (val === "false") return false;
         return null;
       },
+      getInteger(name) {
+        const val = parseInt(argMap.get(name), 10);
+        return isNaN(val) ? null : val;
+      },
+      getNumber(name) {
+        const val = parseFloat(argMap.get(name));
+        return isNaN(val) ? null : val;
+      }
     },
     botReplyMsg: null,
     reply: async function (content) {
       this.botReplyMsg = await msg.reply(content);
     },
-    deferReply: async () => {}, // no-op
+    deferReply: async () => {},
     editReply: async function (content) {
       if (this.botReplyMsg) {
         await this.botReplyMsg.edit(content);

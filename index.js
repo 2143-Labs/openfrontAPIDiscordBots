@@ -207,7 +207,7 @@ client.on('messageCreate', async (msg) => {
       } else {
         this.botReplyMsg = await msg.reply(content);
       }
-    }
+    },
     followUp: (content) => msg.reply(content)
   };
 

@@ -221,6 +221,25 @@ async function registerSlashCommands() {
     console.error('❌ Error registering commands:', err);
   }
 }
+client.on("interactionCreate", async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
+
+  const command = commands.find(c => c.command.name === interaction.commandName);
+  if (!command) {
+    return interaction.reply({ content: 'Unknown command.', ephemeral: true });
+  }
+
+  try {
+    await command.func(interaction);
+  } catch (err) {
+    console.error(`❌ Error running /${interaction.commandName}:`, err);
+    if (interaction.deferred || interaction.replied) {
+      await interaction.followUp({ content: '⚠️ Error executing command.', ephemeral: true });
+    } else {
+      await interaction.reply({ content: '⚠️ Error executing command.', ephemeral: true });
+    }
+  }
+});
 // === 💬 Message handler (optional) ===
 client.on('messageCreate', async (msg) => {
   if (msg.author.bot || !msg.content.startsWith('!')) return;

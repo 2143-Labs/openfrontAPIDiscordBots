@@ -78,8 +78,7 @@ client.login(process.env.DISCORD_TOKEN);
 let keepAlive = async function(ms) {
   console.log("Keeping alive")
   while (true) {
-    await new Promise(resolve => setTimeout(resolve, ms));
-    console.log("🔄 Still alive:", new Date().toISOString());
+    await new Promise(resolve => setTimeout(keepAlive, ms, ms));
   }
 };
 

@@ -54,6 +54,7 @@ client.once('ready', async () => {
 
 // === 🧾 Command registration ===
 client.on('messageCreate', async (msg) => {
+  console.log(msg.content)
   if (msg.author.bot || !msg.content.startsWith('!')) return;
 
   const args = msg.content.slice(1).trim().split(/\s+/);

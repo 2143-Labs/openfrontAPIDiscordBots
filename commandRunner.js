@@ -1,5 +1,6 @@
 import express from 'express';
 import { loadCommandsFrom, getCommand } from './commandLoader.js';
+import { fetchAndCompareLobbies } from './util.js';
 import {
   Client,
   GatewayIntentBits,

@@ -2,7 +2,7 @@ const CHANNEL_ID = process.env.ALERT_CHANNEL_ID;
 let lastLobbies = null;
 let lastAutoMessage = null; // Stores last "unchanged" message from auto-checks
 let lastSuccessFullCheck = new Date()
-export async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = null, client = null} = {}) {
+export async function fetchAndCompareLobbies(pingUserId = null, {manual = false, msg = null, client = null, sendMsg = true} = {}) {
   try {
     const res = await fetch('https://openfront.pro/api/v1/lobbies');
     if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
@@ -20,9 +20,9 @@ export async function fetchAndCompareLobbies(pingUserId = null, {manual = false,
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (!channel?.isTextBased()) return;
     const now = new Date()
-    
+    if (!sendMsg) return
     // === 🔁 If unchanged, update or send auto-warning ===
-    if (isSame || manual) {
+    if (isSame || manua)) {
       const notChangeSinceTimeMsg = `${Math.floor((now - lastSuccessFullCheck) / 60000)} minutes, ${Math.floor(((now - lastSuccessFullCheck) % 60000) / 1000)} seconds and ${(now - lastSuccessFullCheck) % 1000} ms`;
       let message = manual
         ? `📡 Manual lobby check triggered. Lobby data is ${isSame ? '**unchanged**' : '**different**'}.`

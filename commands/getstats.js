@@ -12,56 +12,6 @@ function rgbaToPngBuffer(rgba, width, height) {
 
   return PNG.sync.write(png);
 }
-
-function rgbaToBmpBuffer(rgbaPixels, width, height) {
-  const rowSize = Math.floor((24 * width + 31) / 32) * 4;
-  const pixelArraySize = rowSize * height;
-  const fileSize = 54 + pixelArraySize;
-
-  const bmpBuffer = Buffer.alloc(fileSize);
-
-  // BMP Header
-  bmpBuffer.write('BM');
-  bmpBuffer.writeUInt32LE(fileSize, 2);
-  bmpBuffer.writeUInt32LE(0, 6);
-  bmpBuffer.writeUInt32LE(54, 10);
-
-  // DIB Header
-  bmpBuffer.writeUInt32LE(40, 14);
-  bmpBuffer.writeInt32LE(width, 18);
-  bmpBuffer.writeInt32LE(height, 22);
-  bmpBuffer.writeUInt16LE(1, 26);
-  bmpBuffer.writeUInt16LE(24, 28);
-  bmpBuffer.writeUInt32LE(0, 30);
-  bmpBuffer.writeUInt32LE(pixelArraySize, 34);
-  bmpBuffer.writeInt32LE(0, 38);
-  bmpBuffer.writeInt32LE(0, 42);
-  bmpBuffer.writeUInt32LE(0, 46);
-  bmpBuffer.writeUInt32LE(0, 50);
-
-  // Write pixel data bottom-up BGR
-  for (let y = 0; y < height; y++) {
-    const srcRow = height - 1 - y;
-    const srcRowOffset = srcRow * width * 4;
-    const destRowOffset = 54 + y * rowSize;
-
-    for (let x = 0; x < width; x++) {
-      const srcPixelOffset = srcRowOffset + x * 4;
-      const destPixelOffset = destRowOffset + x * 3;
-
-      const r = rgbaPixels[srcPixelOffset];
-      const g = rgbaPixels[srcPixelOffset + 1];
-      const b = rgbaPixels[srcPixelOffset + 2];
-
-      bmpBuffer[destPixelOffset] = b;
-      bmpBuffer[destPixelOffset + 1] = g;
-      bmpBuffer[destPixelOffset + 2] = r;
-    }
-  }
-
-  return bmpBuffer;
-}
-
 export default async function getstats(msg, args, client) {
   function checkArgs(argIndexes, startsWith) {
     for (const i of argIndexes) {
@@ -148,16 +98,6 @@ export default async function getstats(msg, args, client) {
     }]
     });
     resultMsg.delete()
-    /*const bmpBuffer = rgbaToBmpBuffer(rgbaBuffer, width, height);
-
-    send = {
-      files: [{
-        attachment: bmpBuffer,
-        name: 'heatmap.bmp'
-      }]
-    };
-    content = `🧊 Heatmap generated for map \`${mapName}\`. See the attached BMP image.`;
-    */
     ws.close()
     return
   }

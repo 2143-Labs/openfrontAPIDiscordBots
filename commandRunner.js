@@ -49,6 +49,7 @@ app.listen(PORT, () => {
 // Start periodic check after bot is ready
 client.once('ready', async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
+  fetchAndCompareLobbies()
   await loadCommandsFrom();
 });
 

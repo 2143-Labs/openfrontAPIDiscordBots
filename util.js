@@ -44,7 +44,7 @@ export async function fetchAndCompareLobbies(pingUserId = null, {manual = false,
           try {
             await lastAutoMessage.edit(message);
           } catch (err) {
-            console.warn("⚠️ Couldn't edit last auto message. Sending new one.");
+            console.error("⚠️ Couldn't edit last auto message. Sending new one:", err.message);
             lastAutoMessage = await channel.send(message);
           }
         } else {
@@ -53,7 +53,7 @@ export async function fetchAndCompareLobbies(pingUserId = null, {manual = false,
       }
     } else {
       // ✅ Data changed — delete old unchanged message if it exists
-      lastSuccessFullCheck = new Date();
+      lastSuccessFullCheck = new Date()
       if (lastAutoMessage) {
         try {
           await lastAutoMessage.delete();

@@ -77,9 +77,7 @@ client.on('messageCreate', async (msg) => {
 client.login(process.env.DISCORD_TOKEN);
 let keepAlive = async function(ms) {
   console.log("Keeping alive")
-  while (true) {
-    await new Promise(resolve => setTimeout(keepAlive, ms, ms));
-  }
+  await new Promise(resolve => setTimeout(keepAlive, ms, ms));
 };
 
 await keepAlive(10000); // Ping every 10 seconds

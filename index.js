@@ -1,5 +1,4 @@
 import express from 'express';
-import { loadCommandsFrom, getCommand } from './commandLoader.js';
 import { fetchAndCompareLobbies } from './util.js'
 import {
   Client,
@@ -49,28 +48,5 @@ client.once('ready', async () => {
   console.log('⏱️ Starting periodic lobby monitor...');
   fetchAndCompareLobbies("1072828308376539168", { client });
   setInterval(fetchAndCompareLobbies, CHECK_INTERVAL * 60 * 1000, "1072828308376539168", { client });
-  await loadCommandsFrom();
-});
-
-// === 🧾 Command registration ===
-client.on('messageCreate', async (msg) => {
-  console.log(msg.content)
-  if (msg.author.bot || !msg.content.startsWith('!')) return;
-
-  const args = msg.content.slice(1).trim().split(/\s+/);
-  const commandName = args.shift().toLowerCase();
-
-  const command = getCommand(commandName);
-  if (!command) {
-    msg.reply(`❌ Unknown command: \`${commandName}\``);
-    return;
-  }
-
-  try {
-    await command(msg, args, client);
-  } catch (err) {
-    console.error(`❌ Error running command ${commandName}:`, err);
-    msg.reply('⚠️ Error running command.');
-  }
 });
 client.login(process.env.DISCORD_TOKEN);

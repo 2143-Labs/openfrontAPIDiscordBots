@@ -22,7 +22,7 @@ export async function fetchAndCompareLobbies(pingUserId = null, {manual = false,
     const now = new Date()
     if (!sendMsg) return
     // === 🔁 If unchanged, update or send auto-warning ===
-    if (isSame || manua)) {
+    if (isSame || manual) {
       const notChangeSinceTimeMsg = `${Math.floor((now - lastSuccessFullCheck) / 60000)} minutes, ${Math.floor(((now - lastSuccessFullCheck) % 60000) / 1000)} seconds and ${(now - lastSuccessFullCheck) % 1000} ms`;
       let message = manual
         ? `📡 Manual lobby check triggered. Lobby data is ${isSame ? '**unchanged**' : '**different**'}.`

@@ -41,6 +41,7 @@ app.get('/ping', (req, res) => {
 
 // To redeploy
 app.get('/exit', (req, res) => {
+  res.send('Exiting server for redeployment...');
   process.exit(0);
 });
 

@@ -61,8 +61,8 @@
             pkgs.bash
             #pkgs.bashInteractive pkgs.busybox
 
-            # Utils like ssl certs and other internal tools
             pkgs.cacert
+            pkgs.openssl
           ];
 
           config = {

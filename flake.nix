@@ -28,6 +28,7 @@
           version = "0.1.0";
           buildInputs = [
             nodejs
+            pkgs.cacert
           ];
 
           src = ./.;
@@ -68,9 +69,9 @@
             Entrypoint = [ "${nodejs}/bin/npm" ];
             Cmd = [ "start" ];
             #Entrypoint = [ "${pkgs.bash}/bin/bash" ];
-            Env = [
-              "SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
-            ];
+            #Env = [
+              #"SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+            #];
           };
         };
       }

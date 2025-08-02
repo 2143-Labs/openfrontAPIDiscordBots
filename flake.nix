@@ -30,7 +30,6 @@
             nodejs
           ];
 
-          # We also need to include submodules here:
           src = ./.;
           npmDeps = pkgs.importNpmLock {
             npmRoot = ./.;
@@ -71,7 +70,6 @@
             Cmd = [ "start" ];
           };
         };
-
       }
     );
 }

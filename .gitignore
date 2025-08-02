@@ -1,11 +1,6 @@
 # Node modules
 node_modules/
 
-# Dependency lock files
-package-lock.json
-pnpm-lock.yaml
-yarn.lock
-
 # Logs
 logs
 *.log
@@ -28,3 +23,6 @@ Thumbs.db
 
 # Local storage
 local_storage/
+
+# Nix outputs
+result

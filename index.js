@@ -39,14 +39,24 @@ app.get('/ping', (req, res) => {
   res.send('Pong: ' + client.ws.ping);
 });
 
+// To redeploy
+app.get('/exit', (req, res) => {
+  process.exit(0);
+});
+
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
-// Start periodic check after bot is ready
-client.once('ready', async () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
-  console.log('⏱️ Starting periodic lobby monitor...');
-  fetchAndCompareLobbies("1072828308376539168", { client });
-  setInterval(fetchAndCompareLobbies, CHECK_INTERVAL * 60 * 1000, "1072828308376539168", { client });
-});
-client.login(process.env.DISCORD_TOKEN);
+
+if(process.env.DISCORD_TOKEN) {
+    // Start periodic check after bot is ready
+    client.once('ready', async () => {
+      console.log(`✅ Logged in as ${client.user.tag}`);
+      console.log('⏱️ Starting periodic lobby monitor...');
+      fetchAndCompareLobbies("1072828308376539168", { client });
+      setInterval(fetchAndCompareLobbies, CHECK_INTERVAL * 60 * 1000, "1072828308376539168", { client });
+    });
+    client.login(process.env.DISCORD_TOKEN);
+} else {
+    console.warn("⚠️ DISCORD_TOKEN not set, bot will not log in. Please set the environment variable.");
+}

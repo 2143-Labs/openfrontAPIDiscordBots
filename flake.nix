@@ -43,16 +43,10 @@
             runHook preInstall
 
             mkdir -p $out/bin/
-            mkdir -p $out/
-            cp -r **/*.js $out/
+            cp -r ./commands/ $out/commands
+            cp *.js $out/
             cp ./package.json $out/
             cp -r ./node_modules/ $out/node_modules/
-
-            cat > $out/bin/openfront-api-discordbot <<EOF
-            #!/bin/sh
-            ${nodejs}/bin/npm start
-            EOF
-            chmod +x $out/bin/openfront-api-discordbot
 
             runHook postInstall
           '';
@@ -63,12 +57,15 @@
           contents = [
             packages.discordbot
             nodejs
+
+            pkgs.bash
+            #pkgs.bashInteractive pkgs.busybox
           ];
 
           config = {
             ExposedPorts = { "3000/tcp" = { }; };
-            EntryPoint = [ "${packages.discordbot}/bin/openfront-api-discordbot" ];
-            Env = [ ];
+            Entrypoint = [ "${nodejs}/bin/npm" ];
+            Cmd = [ "start" ];
           };
         };
 

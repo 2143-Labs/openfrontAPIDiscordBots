@@ -95,6 +95,7 @@ export async function fetchAndCompareLobbies(
         }
       }
     }
-  } catch (err) {
-    console.error("❌ Error during lobby fetch:", err);
-  functiontion
+    } catch (err) {
+    console.error('❌ Error during lobby fetch:', err);
+  }
+}

@@ -25,7 +25,7 @@ export default class InfoBoard {
       const boardMsg = fetched.find(
         (m) =>
           m.author.id === this.client.user.id &&
-          m.content.startsWith("📋 **Info Board**")
+          m.content.startsWith("# 📋 **Info Board**")
       );
 
       if (boardMsg) {
@@ -101,11 +101,11 @@ export default class InfoBoard {
 
   format() {
     if (this.lines.size === 0) {
-      return "📋 **Info Board**\n*(No entries yet)*";
+      return "# 📋 **Info Board**\n>>> *(No entries yet)*";
     }
     let idx = 1;
     return (
-      "📋 **Info Board**\n" +
+      "# 📋 **Info Board**\n>>> " +
       Array.from(this.lines.values())
         .map((line) => `${idx++}. ${line.title}: ${line.data}`)
         .join("\n")

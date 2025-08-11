@@ -1,10 +1,12 @@
+import globalBoard from './globalBoard.js'; // your async Proxy info board singleton
+
 const CHANNEL_ID = process.env.ALERT_CHANNEL_ID;
 let lastLobbies = null;
-let lastAutoMessage = null; // persistent auto status message
+let lastAutoMessage = null; // fallback persistent auto message
 let lastSuccessFullCheck = new Date();
 
 /**
- * Initialize the persistent status message on bot startup
+ * Initialize the persistent fallback status message on bot startup
  * @param {import('discord.js').Client} client
  */
 export async function initAutoStatusMessage(client) {
@@ -42,7 +44,6 @@ export async function initAutoStatusMessage(client) {
     console.error("❌ Failed to initialize auto status message:", err);
   }
 }
-
 
 export async function fetchAndCompareLobbies(
   pingUserId = null,
@@ -82,20 +83,26 @@ export async function fetchAndCompareLobbies(
         lastSuccessFullCheck = now;
         messageContent = `✅ Lobby data changed at ${lastSuccessFullCheck.toISOString().split('T')[1].split('.')[0]} UTC`;
       }
-      if (pingUserId) messageContent += ` <@${pingUserId}>`;
+      //if (pingUserId) messageContent += ` <@${pingUserId}>`;
 
-      if (!lastAutoMessage) {
-        lastAutoMessage = await channel.send(messageContent);
-      } else {
-        try {
-          await lastAutoMessage.edit(messageContent);
-        } catch (err) {
-          console.error("⚠️ Couldn't edit persistent auto message, sending new:", err.message);
-          lastAutoMessage = await channel.send(messageContent);
+      try {
+        await globalBoard.setLine("Lobby Status", messageContent);
+      } catch (err) {
+        console.error("⚠️ Failed to update global info board:", err);
+        // fallback to pinned message in channel
+        if (!lastAutoMessage) {
+          await initAutoStatusMessage(client)
+        } else {
+          try {
+            await lastAutoMessage.edit(messageContent);
+          } catch (editErr) {
+            console.error("⚠️ Couldn't edit persistent auto message, sending new:", editErr.message);
+            lastAutoMessage = await channel.send(messageContent);
+          }
         }
       }
     }
-    } catch (err) {
+  } catch (err) {
     console.error('❌ Error during lobby fetch:', err);
   }
 }

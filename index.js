@@ -1,5 +1,6 @@
 import express from 'express';
 import InfoBoard from './infoBoard.js'
+import globalBoard from './globalBoard.js'
 import { fetchAndCompareLobbies, initAutoStatusMessage } from './util.js'
 import {
   Client,
@@ -53,11 +54,10 @@ app.listen(PORT, () => {
 if(process.env.DISCORD_TOKEN) {
     // Start periodic check after bot is ready
     client.once('ready', async () => {
-      const infoBoard = await new InfoBoard('1404272671088316558', client);
-      await infoBoard.setLine("Bot started at", `${new Date().toISOString()}`);
+      await globalBoard.setLine("Bot started at", `${new Date().toISOString()}`);
       console.log(`✅ Logged in as ${client.user.tag}`);
       console.log('⏱️ Starting periodic lobby monitor...');
-      await initAutoStatusMessage(client)
+      //await initAutoStatusMessage(client)
       fetchAndCompareLobbies("1072828308376539168", { client });
       setInterval(fetchAndCompareLobbies, CHECK_INTERVAL * 60 * 1000, "1072828308376539168", { client });
     });

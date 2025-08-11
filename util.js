@@ -7,7 +7,7 @@ let lastSuccessFullCheck = new Date();
  * Initialize the persistent status message on bot startup
  * @param {import('discord.js').Client} client
  */
-export async initAutoStatusMessage initAutoStatusMessage(client) {
+export async function initAutoStatusMessage(client) {
   try {
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (!channel?.isTextBased()) {
@@ -15,27 +15,34 @@ export async initAutoStatusMessage initAutoStatusMessage(client) {
       return;
     }
 
-    // Search for the last message sent by this bot in the channel
-    const fetched = await channel.messages.fetch({ limit: 20 }); // fetch last 20
-    const botMessage = fetched.find(m => 
+    // Search last 20 messages in the channel
+    const fetched = await channel.messages.fetch({ limit: 20 });
+    const botMessage = fetched.find(m =>
       m.author.id === client.user.id &&
       (
         m.content.startsWith("⚠️ Lobby data hasn’t changed") ||
-        m.content.startsWith("✅ Lobby data changed")
+        m.content.startsWith("✅ Lobby data changed") ||
+        m.content.startsWith("⌛ Initializing lobby status")
       )
     );
 
     if (botMessage) {
       lastAutoMessage = botMessage;
       console.log(`✅ Found existing auto status message (ID: ${botMessage.id})`);
+      // Pin if not already pinned
+      if (!botMessage.pinned) {
+        await botMessage.pin().catch(err => console.warn("⚠️ Failed to pin existing status message:", err));
+      }
     } else {
       lastAutoMessage = await channel.send("⌛ Initializing lobby status...");
       console.log(`✅ Created new auto status message (ID: ${lastAutoMessage.id})`);
+      await lastAutoMessage.pin().catch(err => console.warn("⚠️ Failed to pin new status message:", err));
     }
   } catch (err) {
     console.error("❌ Failed to initialize auto status message:", err);
   }
 }
+
 
 export async function fetchAndCompareLobbies(
   pingUserId = null,

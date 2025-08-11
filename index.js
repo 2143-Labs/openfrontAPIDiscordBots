@@ -1,5 +1,5 @@
 import express from 'express';
-import { fetchAndCompareLobbies } from './util.js'
+import { fetchAndCompareLobbies, initAutoStatusMessage } from './util.js'
 import {
   Client,
   GatewayIntentBits,
@@ -54,6 +54,7 @@ if(process.env.DISCORD_TOKEN) {
     client.once('ready', async () => {
       console.log(`✅ Logged in as ${client.user.tag}`);
       console.log('⏱️ Starting periodic lobby monitor...');
+      await initAutoStatusMessage(client)
       fetchAndCompareLobbies("1072828308376539168", { client });
       setInterval(fetchAndCompareLobbies, CHECK_INTERVAL * 60 * 1000, "1072828308376539168", { client });
     });

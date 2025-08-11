@@ -106,3 +106,56 @@ export async function fetchAndCompareLobbies(
     console.error('❌ Error during lobby fetch:', err);
   }
 }
+export function parseArgs(str) {
+  const args = [];
+  let current = "";
+  let inQuotes = false;
+  let quoteChar = null;
+  let escapeNext = false;
+
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+
+    if (escapeNext) {
+      // Add character literally, after \
+      current += char;
+      escapeNext = false;
+      continue;
+    }
+
+    if (char === "\\") {
+      escapeNext = true;
+      continue;
+    }
+
+    if (inQuotes) {
+      if (char === quoteChar) {
+        // Closing quote
+        inQuotes = false;
+        quoteChar = null;
+      } else {
+        current += char;
+      }
+    } else {
+      if (char === '"' || char === "'") {
+        inQuotes = true;
+        quoteChar = char;
+      } else if (/\s/.test(char)) {
+        // Whitespace outside quotes ends arg
+        if (current.length > 0) {
+          args.push(current);
+          current = "";
+        }
+      } else {
+        current += char;
+      }
+    }
+  }
+
+  // Add last arg if any
+  if (current.length > 0) {
+    args.push(current);
+  }
+
+  return args;
+}

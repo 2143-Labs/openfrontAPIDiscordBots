@@ -1,6 +1,6 @@
 import express from 'express';
 import { loadCommandsFrom, getCommand } from './commandLoader.js';
-import { fetchAndCompareLobbies } from './util.js';
+import { fetchAndCompareLobbies, parseArgs } from './util.js';
 import {
   Client,
   GatewayIntentBits,
@@ -57,7 +57,7 @@ client.once('ready', async () => {
 client.on('messageCreate', async (msg) => {
   if (msg.author.bot || !msg.content.startsWith('!')) return;
 
-  const args = msg.content.slice(1).trim().split(/\s+/);
+  const args = parseArgs(msg.content.slice(1).trim())
   const commandName = args.shift().toLowerCase();
 
   const command = getCommand(commandName);

@@ -91,7 +91,7 @@ export default async function getstats(msg, args, client) {
   if (rgbaBuffer) {
   const pngBuffer = rgbaToPngBuffer(rgbaBuffer, width, height);
   await msg.reply({
-    content: `🧊 Heatmap for map \`${mapName}\``,
+    content: `🧊 Heatmap for map \`${mapName}\` from ${data.stats.matchingGameModes} games`,
     files: [{
       attachment: pngBuffer,
       name: 'heatmap.png'

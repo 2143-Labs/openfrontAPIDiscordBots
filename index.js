@@ -2,7 +2,7 @@ import express from 'express';
 import InfoBoard from './infoBoard.js'
 import globalBoard from './globalBoard.js'
 import { fetchAndCompareLobbies, initAutoStatusMessage } from './util.js'
-import { updateGameInfo } from 'gameIdGetter'
+import { updateGameInfo } from './gameIdGetter/info.js'
 import {
   Client,
   GatewayIntentBits,

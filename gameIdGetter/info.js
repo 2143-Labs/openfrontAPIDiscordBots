@@ -381,7 +381,7 @@ console.log("Done processing all games.");
     }
   }
 }
-await updateGameInfo(false)
+updateGameInfo(false)
 /*Deno.serve(async () => {
   await updateGameInfo(false) 
   return new Response("Updated")

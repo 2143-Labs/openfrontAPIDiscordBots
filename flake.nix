@@ -44,7 +44,7 @@
 
             mkdir -p $out/bin/
             cp -r ./commands/ $out/commands
-            cp -_ ./gameIdGetter $out/gameIdGetter
+            cp -r ./gameIdGetter $out/gameIdGetter
             cp *.js $out/
             cp ./package.json $out/
             cp -r ./node_modules/ $out/node_modules/

@@ -1,0 +1,7 @@
+{
+  "domain": "openfront.io",
+  "prefixs": {
+    "api": "api.",
+    "use": "blue."
+  }
+}

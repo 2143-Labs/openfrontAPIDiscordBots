@@ -2,6 +2,7 @@ import express from 'express';
 import InfoBoard from './infoBoard.js'
 import globalBoard from './globalBoard.js'
 import { fetchAndCompareLobbies, initAutoStatusMessage } from './util.js'
+import { updateGameInfo } from 'gameIdGetter'
 import {
   Client,
   GatewayIntentBits,
@@ -46,6 +47,10 @@ app.get('/exit', (req, res) => {
   res.send('Exiting server for redeployment...');
   process.exit(0);
 });
+app.get('updateGameInfo', async (req, res) => {
+  res.send("Updating game info")
+  await updateGameInfo(false)
+})
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

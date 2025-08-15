@@ -47,7 +47,7 @@ app.get('/exit', (req, res) => {
   res.send('Exiting server for redeployment...');
   process.exit(0);
 });
-app.get('updateGameInfo', async (req, res) => {
+app.get('/updateGameInfo', async (req, res) => {
   res.send("Updating game info")
   await updateGameInfo(false)
 })

@@ -276,6 +276,7 @@ console.log("Done processing all games.");
         remoteVars.active.ws.delete(id)
         remoteVars.active.ids.delete(id)
       })
+      await remoteJsonStore.save()
       for (const [dateStr, newEntries] of dateToNewEntries.entries()) {
         let existingEntries = await loadOrCreateFile(dateStr);
         existingEntries.push(...newEntries.flat(Infinity))

@@ -338,7 +338,7 @@ console.log("Done processing all games.");
       await remoteJsonStore.save()
       if (autoSetNextRun) {
         logger(`Running again in ${waitTime}ms`);
-        await new Promise(() => setTimeout(updateGameInfo, waitTime, autoSetNextRun, { type: autoSetNextRunType }));
+        setTimeout(updateGameInfo, waitTime, autoSetNextRun, { type: autoSetNextRunType });
       } else {
         logger(`Suggested wait ${waitTime}ms`);
       }
@@ -371,7 +371,7 @@ console.log("Done processing all games.");
       await remoteJsonStore.save()
       if (autoSetNextRun) {
         logger(`Running again in ${waitTime}ms`);
-        await new Promise(() => setTimeout(updateGameInfo, waitTime, autoSetNextRun, { type: autoSetNextRunType }));
+        setTimeout(updateGameInfo, waitTime, autoSetNextRun, { type: autoSetNextRunType });
       } else {
         logger(`Suggested wait ${waitTime}ms`);
       }
@@ -382,7 +382,8 @@ console.log("Done processing all games.");
     }
   }
 }
-updateGameInfo(false)
+updateGameInfo(true)
+//await remoteJsonStore.save()
 /*Deno.serve(async () => {
   await updateGameInfo(false) 
   return new Response("Updated")

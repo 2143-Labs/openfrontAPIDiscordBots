@@ -18,7 +18,7 @@ import {
   REST,
   Routes
 } from "discord.js";
-
+import './autoPush/push.js'
 // Discord bot setup
 const client = new Client({
   intents: [

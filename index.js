@@ -19,6 +19,7 @@ import {
   Routes
 } from "discord.js";
 import './autoPush/push.js'
+import './commandRunner.js'
 // Discord bot setup
 const client = new Client({
   intents: [

@@ -223,6 +223,7 @@ async function processId(currentId) {
         }
         dateToNewEntries.get(dateStr).push({ gameId: currentId, mapType });
         deleteIds.push(currentId);
+        
     } catch (err) {
         console.error(`Error fetching game ${currentId}:`, err);
     }

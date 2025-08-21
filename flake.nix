@@ -39,17 +39,36 @@
           dontNpmPrune = true;
           dontNpmBuild = true;
           nodejs = pkgs.nodejs_24;
+
           installPhase = ''
             runHook preInstall
 
             mkdir -p $out/bin/
+
+            # Loop over extra folders/files listed in include-list.txt
+            while read item type prefix; do
+              # Determine actual source path
+              if [ "$prefix" = "noprefix" ]; then
+                src="$item"
+              else
+                src="./$item"
+              fi
+
+              if [ "$type" = "folder" ] && [ -d "$src" ]; then
+                cp -r "$src" "$out/$item"
+              elif [ "$type" = "file" ] && [ -f "$src" ]; then
+                cp "$src" "$out/"
+              else
+                echo "Warning: $item of type $type does not exist, skipping."
+              fi
+            done < ${./include-list.txt}
+            # Existing manual copies
             cp -r ./commands/ $out/commands
             cp -r ./gameIdGetter $out/gameIdGetter
             cp -r ./autoPush $out/autoPush
             cp *.js $out/
             cp ./package.json $out/
             cp -r ./node_modules/ $out/node_modules/
-
             runHook postInstall
           '';
         };
@@ -59,10 +78,8 @@
           contents = [
             packages.discordbot
             nodejs
-
             pkgs.bash
             #pkgs.bashInteractive pkgs.busybox
-
             pkgs.cacert
           ];
 

@@ -23,4 +23,4 @@ async function lobbyFetch() {
     let j = await res.json();
     send_to_openfront_pro(j)
 }
-setInterval(lobbyFetch, 10000)
+//setInterval(lobbyFetch, 10000) cloudflair has returned :(

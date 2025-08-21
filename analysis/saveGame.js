@@ -1,4 +1,4 @@
-function analyzeGame(gameId) {
+export default function saveGame(gameId) {
   const url = `https://openfront.pro/api/v1/games/${gameId}/analyze`;
   const sessionToken = process.env.ANALYSIS_TOKEN;
 

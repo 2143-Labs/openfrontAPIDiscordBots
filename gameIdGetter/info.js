@@ -383,7 +383,7 @@ console.log("Done processing all games.");
     }
   }
 }
-updateGameInfo(true)
+//updateGameInfo(true)
 //await remoteJsonStore.save()
 /*Deno.serve(async () => {
   await updateGameInfo(false) 

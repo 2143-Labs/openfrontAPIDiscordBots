@@ -1,20 +1,20 @@
-export const info = { requiredIntent: "spawn", dataTypes: ["heatmap", "avrg"] }
+export const info = { requiredIntent: "spawn", dataTypes: ["heatmap", "avrg"], stat: "spawns" }
 
-export async function heatmapHandler(intents, heatmap = []) {
+export async function heatmap(intents, heatmap = []) {
   intents = intents[0]
   for (const intent of intents) {
     heatmap.push(intent.tile)
   }
   return heatmap
 }
-export async function avrgHandler(intents, avrg = []) {
+export async function avrg(intents, avrg = []) {
   intents = intents[0]
   for (const intent of intents) {
     avrg.push(intent.tile)
   }
   return avrg
 }
-export async function handler(intents) {
+export async function basic(intents) {
   intents = intents[0]
   const results = new Map()
   for (const intent of intents) {

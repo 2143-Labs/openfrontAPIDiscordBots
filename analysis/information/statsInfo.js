@@ -33,7 +33,7 @@ export const intentHandlers = await importIntentHandlers()
  * @param {number} batchSize - Optional, number of turns to process concurrently
  * @returns {Promise<Array>} - Array of all processed intents
  */
-export async function processAllIntents(
+export async function collectIntents(
   turns,
   { name, manifest, winnerIds, batchSize = 10 } = {}
 ) {

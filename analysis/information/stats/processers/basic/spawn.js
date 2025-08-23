@@ -1,4 +1,4 @@
-export const info = { requiredIntent: "spawn", dataTypes: ["heatmap", "avrg"], stat: "spawns" }
+export const info = { requiredIntent: "spawn", dataTypes: ["heatmap", "avrg"] }
 
 export async function heatmap(intents, heatmap = []) {
   intents = intents[0]

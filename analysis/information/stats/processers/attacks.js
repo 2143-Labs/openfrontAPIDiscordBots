@@ -1,5 +1,5 @@
 export const info = { requiredIntent: "attack" }
 
 export async function basic(intents) {
-  return intents
+  return intents[0]
 }

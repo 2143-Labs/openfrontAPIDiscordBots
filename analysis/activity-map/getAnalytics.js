@@ -7,6 +7,9 @@ export async function getPlayers(gameId) {
   return players.players
 }
 export async function getPlayerStats(gameId) {
-  const res = await fetchEndpoint(gameId), "get_player_stats")
+  const res = await fetchEndpoint(gameId, "get_player_stats")
+  const stats = await res.json()
+  return stats.player_stats_ticks
 }
-console.log(await getPlayers("tj2eiZQE"))
+//console.log(await getPlayers("tj2eiZQE"))
+console.log(await getPlayerStats("tj2eiZQE"))

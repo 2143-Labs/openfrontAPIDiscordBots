@@ -11,5 +11,11 @@ export async function getPlayerStats(gameId) {
   const stats = await res.json()
   return stats.player_stats_ticks
 }
+export async function getConstructionEvents(gameId) {
+  const res = await fetchEndpoint(gameId, "get_construction_events")
+  const events = await res.json()
+  return events.events
+}
 //console.log(await getPlayers("tj2eiZQE"))
-console.log(await getPlayerStats("tj2eiZQE"))
+//console.log(await getPlayerStats("tj2eiZQE"))
+console.log(await getConstructionEvents("tj2eiZQE"))

@@ -1,5 +1,4 @@
 export const info = { requiredIntents: [], dataTypes: ["avrg", "startDistance"], requiredStats: ["attacks", "spawns"], requiredInfo: ["players"] }
-
 export async function basic(intents, stats, info) {
   const attacks = stats[0]
   const players = info[0]
@@ -10,7 +9,6 @@ export async function basic(intents, stats, info) {
   }
   return firstAttacks
 }
-
 export async function startDistance(intents, stats, info) {
   const firstAttacks = await basic(intents, stats, info)
   const spawns = stats[1]
@@ -27,4 +25,11 @@ function dist(p1, p2) {
   const deltaX = p2.x - p1.x;
   const deltaY = p2.y - p1.y;
   return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+}
+export async function avrg(intents, stats, info, avrg = []) {
+  const distances = await startDistance(intents, stats, info)
+  distances.values().forEach((distance)=>{
+    avrg.push(distance)
+  })
+  return avrg
 }

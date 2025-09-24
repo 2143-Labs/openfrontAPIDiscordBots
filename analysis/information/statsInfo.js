@@ -2,7 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'node:url';
 
-async function importIntentHandlers(dir = "./stats/collectors") {
+async function importIntentHandlers(dir = "./stats/intents") {
   const handlers = {};
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const commandDir = path.resolve(__dirname, dir);

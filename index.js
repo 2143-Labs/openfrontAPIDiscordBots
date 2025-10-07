@@ -38,6 +38,7 @@ const app = express();
 //set static folder to ./html
 const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, 'html')));
+console.log("Static folder set to ./html");
 // Keepalive endpoint for Deno Deploy ping
 app.get('/ping', (req, res) => {
   res.send('Pong: ' + client.ws.ping);

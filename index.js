@@ -3,6 +3,7 @@ import InfoBoard from './infoBoard.js'
 import globalBoard from './globalBoard.js'
 import { fetchAndCompareLobbies, initAutoStatusMessage } from './util.js'
 import { updateGameInfo } from './gameIdGetter/info.js'
+import path from 'path';
 import {
   Client,
   GatewayIntentBits,
@@ -35,10 +36,15 @@ const client = new Client({
 const PORT = process.env.PORT || 3000;
 const app = express();
 //set static folder to ./html
-app.use(express.static('html'));
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, 'html')));
 // Keepalive endpoint for Deno Deploy ping
 app.get('/ping', (req, res) => {
   res.send('Pong: ' + client.ws.ping);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
 
 // To redeploy
@@ -55,9 +61,6 @@ app.get('/', async (req, res) => {
   res.sendFile('html/index.html', { root: '.' })
 })
 
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
 const CHANNEL_ID = process.env.ALERT_CHANNEL_ID;
 let lastLobbies = null;
 const CHECK_INTERVAL = 1;

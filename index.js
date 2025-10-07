@@ -52,8 +52,7 @@ app.get('/updateGameInfo', async (req, res) => {
 })
 
 app.get('/', async (req, res) => {
-  res.write(`For bot ping go to <a herf="/ping">https://tkbot.openfront.pro/ping</a>`)
-  res.end()
+  res.sendFile('html/index.html', { root: '.' })
 })
 
 app.listen(PORT, () => {

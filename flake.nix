@@ -57,7 +57,7 @@
               if [ "$type" = "folder" ] && [ -d "$src" ]; then
                 cp -r "$src" "$out/$item"
               elif [ "$type" = "file" ] && [ -f "$src" ]; then
-                cp "$src" "$out/"
+                cp "$src" "$out/$item"
               else
                 echo "Warning: $item of type $type does not exist, skipping."
               fi
@@ -67,7 +67,7 @@
             cp -r ./gameIdGetter $out/gameIdGetter
             cp -r ./autoPush $out/autoPush
             cp *.js $out/
-            cp ./start.sh $out/
+            cp ./start.sh $out/start.sh
             cp ./package.json $out/
             cp -r ./node_modules/ $out/node_modules/
             runHook postInstall

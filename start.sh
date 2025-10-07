@@ -2,4 +2,5 @@ npm i
 npm install -g npm@11.6.1
 node --version
 npm --version
-node . --log-level verbose
+ls
+node . --verbose

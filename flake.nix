@@ -67,6 +67,7 @@
             cp -r ./gameIdGetter $out/gameIdGetter
             cp -r ./autoPush $out/autoPush
             cp *.js $out/
+            cp ./start.sh $out/
             cp ./package.json $out/
             cp -r ./node_modules/ $out/node_modules/
             runHook postInstall

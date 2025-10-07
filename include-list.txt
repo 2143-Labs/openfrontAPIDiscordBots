@@ -1,3 +1,2 @@
 analysis folder
 html folder
-start.sh file

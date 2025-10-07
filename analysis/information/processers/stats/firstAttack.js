@@ -1,10 +1,11 @@
 export const info = { requiredIntents: [], dataTypes: ["avrg", "startDistance"], requiredStats: ["attacks", "spawns"], requiredInfo: ["players"] }
 export async function basic(intents, stats, info) {
+  console.log(stats)
   const attacks = stats[0]
   const players = info[0]
   const firstAttacks = new Map()
   for (const player of players) {
-    const playerAttacks = attacks.filter(player.clientID)
+    const playerAttacks = attacks.filter(a => a.clientID === player.clientID)
     if (playerAttacks.length<1) firstAttacks.set(player.clientID, null); else firstAttacks.set(player.clientID, playerAttacks[0])
   }
   return firstAttacks

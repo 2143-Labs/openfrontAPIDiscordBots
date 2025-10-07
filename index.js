@@ -53,6 +53,11 @@ app.get('/updateGameInfo', async (req, res) => {
   await updateGameInfo(false)
 })
 
+app.get('/', async (req, res) => {
+  res.write(`For bot ping go to <a herf="/ping">https://tkbot.openfront.pro/ping</a>`)
+  res.end()
+})
+
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });

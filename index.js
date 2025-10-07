@@ -34,6 +34,8 @@ const client = new Client({
 });
 const PORT = process.env.PORT || 3000;
 const app = express();
+//set static folder to ./html
+app.use(express.static('html'));
 // Keepalive endpoint for Deno Deploy ping
 app.get('/ping', (req, res) => {
   res.send('Pong: ' + client.ws.ping);

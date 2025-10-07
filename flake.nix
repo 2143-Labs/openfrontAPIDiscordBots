@@ -53,7 +53,7 @@
               else
                 src="./$item"
               fi
-
+              echo "Including $item of type $type from $src"
               if [ "$type" = "folder" ] && [ -d "$src" ]; then
                 cp -r "$src" "$out/$item"
               elif [ "$type" = "file" ] && [ -f "$src" ]; then
@@ -67,6 +67,7 @@
             cp -r ./gameIdGetter $out/gameIdGetter
             cp -r ./autoPush $out/autoPush
             cp *.js $out/
+            cp -r ./html $out/html
             cp ./start.sh $out/start.sh
             cp ./package.json $out/
             cp -r ./node_modules/ $out/node_modules/

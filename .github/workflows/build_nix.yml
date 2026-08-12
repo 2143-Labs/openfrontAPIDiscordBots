@@ -13,11 +13,10 @@ env:
 
 jobs:
   build_docker_image:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
 
       #- name: Setup Nix Cache
         #uses: cachix/cachix-action@v10
@@ -30,8 +29,6 @@ jobs:
         run: |
           nix build .#container
 
-      - name: Install skopeo
-        run: sudo apt-get install -y skopeo
       - name: Push with skopeo
         run: |
           skopeo login --username ${{ github.actor }} --password "${{ secrets.PAT_PACKAGES }}" ghcr.io
